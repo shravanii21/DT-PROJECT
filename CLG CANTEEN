@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MITAOE Canteen - Seat Booking & Food Pre-Order</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        h2 {
+            color: #333;
+        }
+        .seating-area {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .seat {
+            width: 50px;
+            height: 50px;
+            background-color: green;
+            color: white;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .occupied {
+            background-color: red;
+            cursor: not-allowed;
+        }
+        .booked {
+            background-color: orange;
+        }
+        .food-menu {
+            margin-top: 30px;
+        }
+        select, button, input {
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        #bookingStatus, #orderStatus {
+            margin-top: 15px;
+            font-size: 18px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to MITAOE Canteen 🍽</h1>
+    <p>Enjoy a seamless experience of seat booking and food pre-ordering!</p>
+
+    <h2>📍 Canteen Seat Booking</h2>
+    <p>Click on an available seat (Green) to book it.</p>
+    <div class="seating-area" id="seatingArea"></div>
+    <h3 id="bookingStatus"></h3>
+
+    <button onclick="cancelSeat()">❌ Cancel a Seat</button>
+
+    <h2>🍽 Pre-Order Your Food</h2>
+    <div class="food-menu">
+        <label for="foodItem">Choose Food:</label>
+        <select id="foodItem">
+            <option value="Burger-5">🍔 Burger - $5</option>
+            <option value="Pizza-8">🍕 Pizza - $8</option>
+            <option value="Pasta-7">🍝 Pasta - $7</option>
+            <option value="Coffee-3">☕ Coffee - $3</option>
+            <option value="Sandwich-4">🥪 Sandwich - $4</option>
+            <option value="Noodles-6">🍜 Noodles - $6</option>
+            <option value="IceCream-3">🍦 Ice Cream - $3</option>
+            <option value="Tea-2">🍵 Tea - $2</option>
+        </select>
+        <br><br>
+        <button onclick="calculateTotal()">🛒 Calculate Total</button>
+        <button onclick="askPaymentMode()">✅ Confirm Order</button>
+    </div>
+
+    <h3 id="totalAmount"></h3>
+    <h3 id="orderStatus"></h3>
+
+    <script>
+        const totalSeats = 12;
+        const occupiedSeats = [2, 5, 8]; // Example of occupied seats
+        let bookedSeats = []; // Store booked seats
+        let canceledSeats = []; // Store canceled seats
+
+        function createSeats() {
+            const seatingArea = document.getElementById("seatingArea");
+            seatingArea.innerHTML = ""; // Clear previous seats
+            for (let i = 1; i <= totalSeats; i++) {
+                let seat = document.createElement("div");
+                seat.classList.add("seat");
+                seat.innerText = i;
+
+                if (occupiedSeats.includes(i)) {
+                    seat.classList.add("occupied");
+                } else {
+                    seat.addEventListener("click", () => bookSeat(i, seat));
+                }
+
+                seatingArea.appendChild(seat);
+            }
+        }
+
+        function bookSeat(seatNumber, seatElement) {
+            if (!occupiedSeats.includes(seatNumber) && !bookedSeats.includes(seatNumber)) {
+                bookedSeats.push(seatNumber);
+                seatElement.classList.add("booked");
+                document.getElementById("bookingStatus").innerText = ✅ Seat ${seatNumber} booked successfully!;
+            }
+        }
+
+        function cancelSeat() {
+            let seatNumber = parseInt(prompt("Enter seat number to cancel:"));
+
+            if (bookedSeats.includes(seatNumber)) {
+                let confirmation = confirm(⚠ Seat cancellation charge is $2. Do you want to proceed?);
+                if (confirmation) {
+                    bookedSeats = bookedSeats.filter(seat => seat !== seatNumber);
+                    canceledSeats.push(seatNumber);
+                    createSeats(); // Refresh seats
+                    document.getElementById("bookingStatus").innerText = ❌ Seat ${seatNumber} cancelled. Charge: $2;
+                }
+            } else {
+                alert("❌ Seat not found or already occupied!");
+            }
+        }
+
+        function calculateTotal() {
+            let selectedFood = document.getElementById("foodItem").value;
+            let price = parseFloat(selectedFood.split("-")[1]); 
+            let tax = price * 0.10; 
+            let total = price + tax;
+
+            document.getElementById("totalAmount").innerText = 💰 Total (incl. tax): $${total.toFixed(2)};
+        }
+
+        function askPaymentMode() {
+            let paymentMethod = prompt("Enter Payment Method: (Cash / UPI)").trim();
+            
+            if (paymentMethod.toLowerCase() === "cash" || paymentMethod.toLowerCase() === "upi") {
+                placeOrder(paymentMethod);
+            } else {
+                alert("❌ Invalid payment method! Please enter 'Cash' or 'UPI'.");
+            }
+        }
+
+        function placeOrder(paymentMethod) {
+            let selectedFood = document.getElementById("foodItem").value;
+            let foodName = selectedFood.split("-")[0]; 
+
+            document.getElementById("orderStatus").innerText = ✅ Your ${foodName} has been ordered! Payment via ${paymentMethod}.;
+        }
+
+        createSeats();
+    </script>
+
+</body>
+</html>
